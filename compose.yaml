@@ -1,0 +1,28 @@
+services:
+  hong-gateway:
+    image: nginx:latest
+    container_name: hong-gateway
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "5000:5000"
+    networks:
+      - docker-ubuntu_default
+
+  hong-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: hong-tunnel
+    restart: always
+    depends_on:
+      - hong-gateway
+      - ubuntu2204-large
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN} 
+    networks:
+      - docker-ubuntu_default
+  
+networks:
+  docker-ubuntu_default:    
+    external: true
